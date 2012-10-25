@@ -1,0 +1,8 @@
+src_files:
+  - "calculator.js"
+helpers:
+  - helpers/**/*
+spec_files:
+  - "**/*_spec.*"
+src_dir: js
+spec_dir: spec
