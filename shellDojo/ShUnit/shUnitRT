@@ -1,0 +1,199 @@
+# -----------------------------------------------------------------------
+#
+#    $Id: shUnitRT 64979 2012-11-02 14:33:16Z skuepper $
+# 
+# -----------------------------------------------------------------------
+
+#
+# make sure that everything gets cleaned up if we get interrupted
+#
+trap premature_end 1 2 15
+
+############################################################################
+#
+# Framework Function definitions
+#
+############################################################################
+show_help() {
+    HELP_PROG=${1:-pod2usage}
+    log DEBUG "HELP_PROG=[$HELP_PROG]"
+    if type ${HELP_PROG} > /dev/null 2>&1
+    then
+		if [ -z ${HELPNAME} ] ; then 
+			# No HELP document take scrit itself
+			HELP_DOC=${PROGNAME}
+		else
+			# use explicit help file
+			HELP_DOC=${HELPNAME}
+		fi
+        ${HELP_PROG} ${HELP_DOC}
+        exit
+    else
+        echo "unable to find ${HELP_PROG} in the PATH"
+		echo "try $PORGNAME [-m] [-n] [-v] [-V] [-Q] [-t]"
+        exit 1
+    fi
+}
+
+show_usage() {
+    show_help
+}
+
+show_man() {
+    show_help pod2text
+}
+
+log() {
+    level_as_string="$1"
+    level_as_nbr=`eval echo "$"$1""`
+    test ${VERBOSITY} -ge ${level_as_nbr} && echo "[$level_as_string] $2"
+}
+
+clean_up() {
+    log TRACE "cleaning up after myself"
+
+    if [ -n "${LITTER}" ] 
+    then
+        log DEBUG "LITTER=[${LITTER}]"
+
+        for file_or_dir in ${LITTER}
+        do
+            log DEBUG "removing [${file_or_dir}]"
+            rm -rf ${file_or_dir}
+        done
+    fi
+}
+premature_end() {
+    echo "hold your horses while I clean up after myself"
+    clean_up
+    exit
+}
+show_version() {
+	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+    echo "${PROGNAME} v$VERSION"
+	echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+    exit
+}
+set_globals() {
+    TRUE=0
+    FALSE=1
+    EXECUTE=${TRUE}
+    CONFIG_FILE_NAME="${PROGNAME}.cfg"
+    REVISION='$Id: shUnitRT 64979 2012-11-02 14:33:16Z skuepper $' 
+    # VERSION=`echo $REVISION | sed -e 's/[A-Za-z$]//g'`
+    VERSION="1.6"
+    KEEP_DOWNLOADS=${FALSE}
+
+    #
+    # the user can adjust the level of output by specifying multiple 'v' 
+    # command line arguments with the level equal to the number given.  
+    #
+    SILENT=0
+    TRACE=1
+    DEBUG=2
+    REALLYDEBUG=3
+    VERBOSITY=${SILENT}
+}
+
+
+############################################################################
+#
+# Unit Test execution
+#
+############################################################################
+performUnitTests() {
+	log TRACE "performUnitTests ..."
+    setUpUnitTests
+	shuStart
+    return $?
+}
+
+setUpUnitTests() {
+    #
+    # find the shUnit script we'll use for testing
+    #
+    FOUND_SHUNIT="${FALSE}"
+    CANDIDATES="${SHUNIT_HOME} . /usr/local/ShUnit /opt/ShUnit"
+    log DEBUG "CANDIDATES=[${CANDIDATES}]"
+    for c in $CANDIDATES
+    do
+        log DEBUG "c=[$c]"
+        if [ -r "${c}/shUnit" ]
+        then
+            . "${c}/shUnit"
+            FOUND_SHUNIT="${TRUE}"
+			log TRACE "shUnit      : $c"
+            break
+        fi
+    done
+  
+    if [ "${FOUND_SHUNIT}" -eq "${FALSE}" ]
+    then
+        echo "unable to source the shUnit file, and so will be not proceed"
+        echo "Try setting SHUNIT_HOME to point to the directory containing it"
+        exit 1
+    fi
+
+    if [ -r "${SourceToTest}" ]
+    then
+          . "${SourceToTest}"
+    fi
+	log TRACE "SHELL       : $SHELL"
+}
+
+
+main_test()
+{
+	############################################################################
+	#
+	# Main program
+	#
+	############################################################################
+
+	#
+	# we'll need this from some of our functions ... therefore must save it 
+	# out before calling any of them otherwise it will get set to the function
+	# name itself, which would hose things up.
+	#
+	set_globals
+
+	echo "PROGNAME    : $PROGNAME  "
+    echo "shUnitRT    $Id: shUnitRT 64979 2012-11-02 14:33:16Z skuepper $"
+	if [ ! -z $SourceToTest ]; then
+		echo "SourceToTest: $SourceToTest"
+	fi
+
+	#
+	# handle any command line arguments
+	#
+	res=0
+	pc=0
+	while getopts "tnvVmhQ" OPTION
+	do	
+		pc=`expr $pc + 1`
+		case "$OPTION" in
+			t)  performUnitTests
+				res=$?
+			;;   
+			n)  EXECUTE=${FALSE};;     # Don't actually execute any commands
+			Q)  exec 1>/dev/null;;
+			v)  VERBOSITY=`expr $VERBOSITY + 1`;;
+			V)  show_version;;         # User asked for version information
+			h)  show_usage;;           # User asked for help
+			m)  show_man;;             # User asked for lots of help
+			\?,?) show_usage;;           # Unknown argument ... show usage and exit
+		esac
+	done
+	
+	if [ $pc -eq 0 ] ; then        # perform Tests if no option was entered.
+		performUnitTests
+		res=$?
+	fi
+
+	shift `expr $OPTIND - 1`
+
+	clean_up
+	log TRACE "test result is <${res}>."
+	return $res
+}
+

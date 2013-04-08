@@ -1,0 +1,36 @@
+NAME
+    Test - Test
+
+SYNOPSIS
+    % options [-h] [-m] [-n] [-v] [-V] [-Q] [-t]
+
+DESCRIPTION
+OPTIONS
+    -h  help: get usage information (this man page, actually)
+
+    -n  dry-run: don't actually change anything except log messages to
+        STDOUT
+
+    -Q  Be very quiet indeed. When this option is invoked, STDOUT gets
+        redirected to /dev/null.
+
+    -v  produce verbose output. *NOTE:* Using multiple '-v' options will
+        increase the verbosity of the the output
+
+    -V  show the script's version number and exit
+
+    -m  show the script's man page and exit
+
+ENVIRONMENT
+    SHUNIT_HOME
+        The directory containing the shUnit unit-testing framework script.
+        It's needed if you want to run the unit tests.
+
+BUGS
+        But of course not!
+
+AUTHOR
+        Bobby Nations <BobbyNations@users.sourceforge.net>
+
+        Stefan Kueppers<skuepper01@users.sourceforge.net>
+

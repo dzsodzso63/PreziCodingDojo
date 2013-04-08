@@ -1,0 +1,82 @@
+
+ 
+############################################################################
+#
+# Man page section in Perl's POD format
+#
+############################################################################
+
+=pod
+
+=head1 NAME 
+
+shUnit 
+
+=head1 SYNOPSIS
+
+shUnit [-h] [-m] [-n] [-v] [-V] [-Q] [-t]
+
+=head1 DESCRIPTION
+
+
+=head1 OPTIONS
+
+=over
+
+=item B<-h> 
+
+help: get usage information (this man page, actually)
+
+=item B<-n> 
+
+dry-run: don't actually change anything except log messages to STDOUT
+
+=item B<-Q> 
+
+Be very quiet indeed.  When this option is invoked, STDOUT gets redirected
+to /dev/null.
+
+=item B<-v> 
+
+produce verbose output.  I<NOTE:> Using multiple '-v' options will increase 
+the verbosity of the the output
+
+=item B<-V> 
+
+show the script's version number and exit
+
+=item B<-m> 
+
+show the script's man page and exit
+
+=back
+
+=head1 ENVIRONMENT
+
+=over
+
+=item SHUNIT_HOME
+
+The directory containing the shUnit unit-testing framework script.  It's needed
+if you want to run the unit tests.
+
+=head1 BUGS
+
+But of course not!
+
+=head1 AUTHOR
+
+Bobby  Nations <BobbyNations@users.sourceforge.net>
+
+Stefan Kueppers<skuepper01@users.sourceforge.net>
+
+=cut
+
+############################################################################
+# Local Variables:
+# mode: cperl
+# cperl-indent-level: 4
+# indent-tabs-mode: nil
+# End:
+# vim: ai et sw=4 syntax=sh:
+############################################################################

@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ff09cf4c-116f-40b5-b534-e0a7b4ae283c" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/js/bowling.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/spec/bowling_spec.js" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ttt" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test_runner.html" afterPath="$PROJECT_DIR$/test_runner.html" />
-    </list>
+    <list default="true" id="ff09cf4c-116f-40b5-b534-e0a7b4ae283c" name="Default" comment="" />
     <ignored path="Prezi Coding Dojo.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />

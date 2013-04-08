@@ -1,0 +1,128 @@
+# -----------------------------------------------------------------------
+#
+#    $Id: moneyTest2 64979 2012-11-02 14:33:16Z skuepper $
+# 
+# -----------------------------------------------------------------------
+
+
+############################################################################
+#
+# Unit Test Function Definitions
+#
+############################################################################
+
+shuSetUp() {
+    m2CHF="2 CHF"
+    m12CHF="12 CHF"
+    m14CHF="14 CHF"
+    m20USD="20 USD"
+    mm2CHF="-2 CHF"
+}
+TestEquals() {
+    money_equals "${m12CHF}" "${m14CHF}"
+    test $? -eq 0
+    shuDeny "'${m12CHF}' == '${m14CHF}'" $?
+
+    money_equals "${m12CHF}" "${m12CHF}"
+    test $? -eq 0
+    shuAssert "'${m12CHF}' == '${m12CHF}'" $?
+
+    money_equals "${m12CHF}" "12 CHF"
+    test $? -eq 0
+    shuAssert "'${m12CHF}' == '12 CHF'" $?
+}
+TestGetAmount() {
+    money_get_amount "$m12CHF"
+    test "${RET_money_get_amount}" -eq "12"
+    shuAssert "expected '12' but got '$RET_money_get_amount'" $?
+
+    money_get_amount "$m20USD"
+    test "${RET_money_get_amount}" -eq "20"
+    shuAssert "expected '20' but got '$RET_money_get_amount'" $?
+
+    money_get_amount "$mm2CHF"
+    test "${RET_money_get_amount}" -eq "-2"
+    shuAssert "expected '-2' but got '$RET_money_get_amount'" $?
+
+    money_get_amount "12"
+    test "${RET_money_get_amount}" -eq "12"
+    shuAssert "expected '12' but got '$RET_money_get_amount'" $?
+
+    money_get_amount "USD"
+    test "${RET_money_get_amount}" = "ERROR: No amount found"
+    shuAssert "testing money value with no amount" $?
+
+}
+TestGetCurrency() {
+    money_get_currency "$m12CHF"
+    test "${RET_money_get_currency}" = "CHF"
+    shuAssert "expected 'CHF' but got '$RET_money_get_currency'" $?
+
+    money_get_currency "$m20USD"
+    test "${RET_money_get_currency}" = "USD"
+    shuAssert "expected 'USD' but got '$RET_money_get_currency'" $?
+
+    money_get_currency "USD"
+    test "${RET_money_get_currency}" = "USD"
+    shuAssert "testing money value with no amount" $?
+
+    money_get_currency "12"
+    test "${RET_money_get_currency}" = "ERROR: No currency found"
+    shuAssert "testing money value with no currency" $?
+
+    money_get_currency "$mm2CHF"
+    test "${RET_money_get_currency}" = "CHF"
+    shuAssert "expected 'CHF' but got '$RET_money_get_currency'" $?
+}
+TestSimpleAdd() {
+    expected="16 CHF"
+    money_add "$m2CHF" "$m14CHF"
+    test "${RET_money_add}" = "${expected}"
+    shuAssert "'${m2CHF}' + '${m14CHF}' didn't equeal '${expected}'" $?
+
+    expected="26 CHF"
+    money_add "$m12CHF" "$m14CHF"
+    test "${RET_money_add}" = "${expected}"
+    shuAssert "'${m12CHF}' + '${m14CHF}' didn't equeal '${expected}'" $?
+
+    expected="ERROR"
+    money_add "$m12CHF" "$m20USD"
+    test "${RET_money_add}" = "${expected}"
+    shuAssert "'${m12CHF}' + '${m20USD}' didn't equeal '${expected}'" $?
+
+    expected="10 CHF"
+    money_add "$m12CHF" "$mm2CHF"
+    test "${RET_money_add}" = "${expected}"
+    shuAssert "'${m12CHF}' + '${mm2CHF}' didn't equeal '${expected}'" $?
+}
+
+
+############################################################################
+#
+# Main program
+#
+############################################################################
+PROGNAME=${0}
+HELPNAME=${SHUNIT_HOME}/man.pod
+
+# set your shell, if not alleady  done.
+# SHELL=ksh
+SHELL=` ps -p $$ | tail -1  | awk '{print $NF}' `
+
+if [ -z "${SHUNIT_HOME}" ]; then
+	echo "Please set env <SHUNIT_HOME> !"
+	exit 1
+fi
+ 
+# If the Script Source under test is in a different file, specify it here:
+SourceToTest=${SHUNIT_HOME}/sample/money
+
+# import the sh unit runtime functions
+. ${SHUNIT_HOME}/shUnitRT 
+
+# start the test 
+# will collect all funtions, starting with "Test"  and execute them
+main_test $@
+
+# Thats all.
+
