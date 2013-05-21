@@ -19,7 +19,7 @@ Elm.GildedRose = function(elm){
  document.addEventListener('factorial_' + elm.id, function(e) { elm.notify(numbers_1.id, e.value); });
  factorial_2 = function(n_4){
   return product(_L.range(1,n_4));};
- main_3 = asText(factorial_2(5));
+ main_3 = asText(factorial_2(4));
  lift(function(v) { var e = document.createEvent('Event');e.initEvent('output_' + elm.id, true, true);e.value = v;document.dispatchEvent(e); return v; })(numbers_1);
  elm.Native = elm.Native||{};
  var _ = elm.Native.GildedRose||{};
