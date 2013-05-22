@@ -2,15 +2,35 @@
 (function() {
   suite('Gilded Rose', function() {
     setup(function() {
-      return this.worker = Elm.worker(Elm.GildedRose);
-    });
-    return test('Can calculate factorial', function(done) {
-      this.timeout(500);
-      this.worker.recv("output", function(result) {
-        result.should.equal(6);
-        return done();
+      var _this = this;
+
+      this.worker = Elm.worker(Elm.GildedRose);
+      this.send = function(num) {
+        this.lastOutput = null;
+        return this.worker.send("input", num);
+      };
+      this.check = function(against, lastCallback) {
+        this.against = against;
+        this.lastCallback = lastCallback;
+      };
+      return this.worker.recv("output", function(evt) {
+        _this.lastOutput = evt.value;
+        _this.against.should.equal(_this.lastOutput);
+        if (typeof _this.lastCallback === "function") {
+          _this.lastCallback();
+        }
+        return _this.lastCallback = null;
       });
-      return this.worker.send("factorial", 3);
+    });
+    test('Can calculate factorial', function(done) {
+      this.timeout(500);
+      this.check(6, done);
+      return this.send(3);
+    });
+    return test('This fails', function(done) {
+      this.timeout(500);
+      this.check(16, done);
+      return this.send(3);
     });
   });
 
