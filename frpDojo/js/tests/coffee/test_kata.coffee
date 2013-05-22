@@ -50,5 +50,5 @@ suite 'Gilded Rose', ->
     @timePasses()
 
     @checkInventory (inventory)->
-      inventory.length.should.equal itemCount
+      inventory.length.should.equal itemCount, "Number of items changes"
       done()

@@ -56,7 +56,7 @@
       });
       this.timePasses();
       return this.checkInventory(function(inventory) {
-        inventory.length.should.equal(itemCount);
+        inventory.length.should.equal(itemCount, "Number of items changes");
         return done();
       });
     });
