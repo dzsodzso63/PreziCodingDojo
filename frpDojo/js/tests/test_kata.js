@@ -47,7 +47,7 @@
         return done();
       });
     });
-    return test('Updating inventory shouldnt change the number of items', function(done) {
+    return test("Passing time shouldn't change the number of items", function(done) {
       var itemCount;
 
       itemCount = null;

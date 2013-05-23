@@ -42,7 +42,7 @@ suite 'Gilded Rose', ->
       inventory.length.should.equal @items.length
       done()
 
-  test 'Updating inventory shouldnt change the number of items', (done) ->
+  test "Passing time shouldn't change the number of items", (done) ->
     itemCount = null
     @checkInventory (inventory)->
       itemCount = inventory.length
@@ -50,5 +50,6 @@ suite 'Gilded Rose', ->
     @timePasses()
 
     @checkInventory (inventory)->
-      inventory.length.should.equal itemCount, "Number of items changes"
+      inventory.length.should.equal itemCount,
+        "Number of items changes"
       done()
