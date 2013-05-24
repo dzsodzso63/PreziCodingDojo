@@ -13,6 +13,10 @@ suite 'Gilded Rose', ->
         quality: 2
       }
     ]
+
+    assert.isDefined Elm.GildedRose,
+      "GildedRose is not defined!"
+
     @worker = Elm.worker(Elm.GildedRose)
 
     @requestInventory = =>
@@ -36,13 +40,13 @@ suite 'Gilded Rose', ->
       inventory.should.not.be.empty
       done()
 
-  test 'There are as many items in the store what we put', (done) ->
+  test 'There are as many items in the store', (done) ->
     @checkInventory (inventory)->
       expect(inventory).to.exist
       inventory.length.should.equal @items.length
       done()
 
-  test "Passing time shouldn't change the number of items", (done) ->
+  test "Time shouldn't change the # of items", (done) ->
     itemCount = null
     @checkInventory (inventory)->
       itemCount = inventory.length

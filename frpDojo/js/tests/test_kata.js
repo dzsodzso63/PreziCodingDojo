@@ -16,6 +16,7 @@
           quality: 2
         }
       ];
+      assert.isDefined(Elm.GildedRose, "GildedRose is not defined!");
       this.worker = Elm.worker(Elm.GildedRose);
       this.requestInventory = function() {
         _this.inventory = null;
@@ -40,14 +41,14 @@
         return done();
       });
     });
-    test('There are as many items in the store what we put', function(done) {
+    test('There are as many items in the store', function(done) {
       return this.checkInventory(function(inventory) {
         expect(inventory).to.exist;
         inventory.length.should.equal(this.items.length);
         return done();
       });
     });
-    return test("Passing time shouldn't change the number of items", function(done) {
+    return test("Time shouldn't change the # of items", function(done) {
       var itemCount;
 
       itemCount = null;
