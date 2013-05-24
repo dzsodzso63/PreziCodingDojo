@@ -8,11 +8,11 @@
       this.items = [
         {
           name: "Old sword",
-          exipre: 10,
+          expire: 10,
           quality: 5
         }, {
           name: "wooden armour",
-          exipre: 5,
+          expire: 5,
           quality: 2
         }
       ];
@@ -29,12 +29,12 @@
       this.timePasses = function() {
         return this.worker.send("timePasses", true);
       };
-      this.worker.recv("inventory", function(evt) {
+      return this.worker.recv("inventory", function(evt) {
         return typeof _this.lastCallback === "function" ? _this.lastCallback(evt.value) : void 0;
       });
-      return this.worker.send("items", this.items);
     });
     test('There are the items in the store', function(done) {
+      this.worker.send("items", this.items);
       return this.checkInventory(function(inventory) {
         expect(inventory).to.exist;
         inventory.should.not.be.empty;
@@ -42,15 +42,17 @@
       });
     });
     test('There are as many items in the store', function(done) {
+      this.worker.send("items", this.items);
       return this.checkInventory(function(inventory) {
         expect(inventory).to.exist;
         inventory.length.should.equal(this.items.length);
         return done();
       });
     });
-    return test("Time shouldn't change the # of items", function(done) {
+    test("Time shouldn't change the # of items", function(done) {
       var itemCount;
 
+      this.worker.send("items", this.items);
       itemCount = null;
       this.checkInventory(function(inventory) {
         return itemCount = inventory.length;
@@ -58,6 +60,209 @@
       this.timePasses();
       return this.checkInventory(function(inventory) {
         inventory.length.should.equal(itemCount, "Number of items changes");
+        return done();
+      });
+    });
+    test("Expire is decreasing with time", function(done) {
+      var myInventory;
+
+      this.worker.send("items", this.items);
+      myInventory = null;
+      this.checkInventory(function(inventory) {
+        return myInventory = inventory;
+      });
+      this.timePasses();
+      return this.checkInventory(function(inventory) {
+        var i, item, _i, _len;
+
+        for (i = _i = 0, _len = inventory.length; _i < _len; i = ++_i) {
+          item = inventory[i];
+          expect(item).to.exist;
+          item.expire.should.equal(myInventory[i].expire - 1);
+        }
+        return done();
+      });
+    });
+    test("Quality is decreasing with time", function(done) {
+      var myInventory;
+
+      this.worker.send("items", this.items);
+      myInventory = null;
+      this.checkInventory(function(inventory) {
+        return myInventory = inventory;
+      });
+      this.timePasses();
+      return this.checkInventory(function(inventory) {
+        var i, item, _i, _len;
+
+        for (i = _i = 0, _len = inventory.length; _i < _len; i = ++_i) {
+          item = inventory[i];
+          expect(item).to.exist;
+          item.quality.should.equal(myInventory[i].quality - 1);
+        }
+        return done();
+      });
+    });
+    test("Quality degrades 2x after expires<=0", function(done) {
+      var myItems;
+
+      myItems = [
+        {
+          name: "expiredstuff",
+          expire: 0,
+          quality: 3
+        }
+      ];
+      this.worker.send("items", myItems);
+      this.timePasses();
+      return this.checkInventory(function(inv) {
+        inv[0].quality.should.equal(1);
+        return done();
+      });
+    });
+    test("Quality is never negative", function(done) {
+      var i, _i;
+
+      this.worker.send("items", this.items);
+      for (i = _i = 1; _i <= 9; i = ++_i) {
+        this.timePasses();
+      }
+      return this.checkInventory(function(inventory) {
+        var item, _j, _len;
+
+        for (i = _j = 0, _len = inventory.length; _j < _len; i = ++_j) {
+          item = inventory[i];
+          expect(item).to.exist;
+          item.quality.should.not.be.below(0);
+        }
+        return done();
+      });
+    });
+    test("Aged Brie gets more valuable with time", function(done) {
+      var myItems;
+
+      myItems = [
+        {
+          name: "Aged Brie",
+          expire: 3,
+          quality: 3
+        }
+      ];
+      this.worker.send("items", myItems);
+      this.timePasses();
+      return this.checkInventory(function(inventory) {
+        inventory[0].quality.should.equal(4);
+        return done();
+      });
+    });
+    test("The Quality of an item is never more than 50", function(done) {
+      var myItems;
+
+      myItems = [
+        {
+          name: "Aged Brie",
+          expire: 3,
+          quality: 49
+        }
+      ];
+      this.worker.send("items", myItems);
+      this.timePasses();
+      this.timePasses();
+      return this.checkInventory(function(inventory) {
+        inventory[0].quality.should.equal(50);
+        return done();
+      });
+    });
+    test("Sulfuras shouldn't change with time", function(done) {
+      var myItems;
+
+      myItems = [
+        {
+          name: "Sulfuras",
+          expire: 10,
+          quality: 20
+        }
+      ];
+      this.worker.send("items", myItems);
+      this.timePasses();
+      return this.checkInventory(function(inventory) {
+        inventory[0].quality.should.equal(myItems[0].quality);
+        inventory[0].expire.should.equal(myItems[0].expire);
+        return done();
+      });
+    });
+    test('“Backstage passes”, like aged brie, increases in Quality as it’s SellIn value approaches; Quality increases by 2 when there are 10 days or less ', function(done) {
+      var i, myItems, _i;
+
+      myItems = [
+        {
+          name: "Backstage passes",
+          expire: 10,
+          quality: 20
+        }
+      ];
+      this.worker.send("items", myItems);
+      for (i = _i = 1; _i <= 3; i = ++_i) {
+        this.timePasses();
+      }
+      return this.checkInventory(function(inventory) {
+        inventory[0].quality.should.equal(26);
+        inventory[0].expire.should.equal(7);
+        return done();
+      });
+    });
+    test('“Backstage passes”, like aged brie, increases in Quality as it’s SellIn value approaches; Quality increases by 2 when there are 10 days or less and by 3 when there are 5 days or less but Quality drops to 0 after the concert', function(done) {
+      var i, myItems, _i, _j;
+
+      myItems = [
+        {
+          name: "Backstage passes",
+          expire: 7,
+          quality: 26
+        }
+      ];
+      this.worker.send("items", myItems);
+      for (i = _i = 4; _i <= 6; i = ++_i) {
+        this.timePasses();
+      }
+      this.checkInventory(function(inventory) {
+        inventory[0].quality.should.equal(33);
+        return inventory[0].expire.should.equal(4);
+      });
+      for (i = _j = 7; _j <= 11; i = ++_j) {
+        this.timePasses();
+      }
+      return this.checkInventory(function(inventory) {
+        inventory[0].expire.should.equal(-1);
+        inventory[0].quality.should.equal(0);
+        return done();
+      });
+    });
+    return test("Conjured items degrade in Quality twice as fast as normal items", function(done) {
+      var myItems;
+
+      myItems = [
+        {
+          name: "Conjured",
+          expire: 2,
+          quality: 16
+        }
+      ];
+      this.worker.send("items", myItems);
+      this.timePasses();
+      this.checkInventory(function(inventory) {
+        inventory[0].expire.should.equal(1);
+        return inventory[0].quality.should.equal(14);
+      });
+      this.timePasses();
+      this.checkInventory(function(inventory) {
+        inventory[0].expire.should.equal(0);
+        return inventory[0].quality.should.equal(12);
+      });
+      this.timePasses();
+      return this.checkInventory(function(inventory) {
+        inventory[0].expire.should.equal(-1);
+        inventory[0].quality.should.equal(8);
         return done();
       });
     });

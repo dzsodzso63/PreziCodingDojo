@@ -2,6 +2,7 @@ module GildedRose where
 
 import Dict
 import JavaScript as JS
+import JavaScript.Experimental as JSE
 import TimePasser
 
 -- Import events from JavaScript
@@ -25,7 +26,7 @@ data Update = Delivery [Item] | TimePasses
 
 -- Convert the array of objects into a list of records
 deliveries : Signal [Item]
-deliveries = lift (map JS.toRecord . JS.toList) jsDeliveries
+deliveries = lift (map JSE.toRecord . JS.toList) jsDeliveries
 
 updates = merges [ Delivery <~ deliveries,
                    sampleOn timePasses (constant TimePasses) ]
@@ -36,7 +37,7 @@ inventory = foldp updateInventory Dict.empty updates
 
 -- Export events back to JavaScript
 jsInventory = sampleOn inventoryRequests <|
-              lift (JS.fromList . map JS.fromRecord . Dict.values) inventory
+              lift (JS.fromList . map JSE.fromRecord . Dict.values) inventory
 foreign export jsevent "inventory"
   jsInventory : Signal (JSArray JSObject)
 

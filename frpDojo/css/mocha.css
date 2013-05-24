@@ -45,7 +45,7 @@ body {
 }
 
 #mocha h2 {
-    font-size: 12px;
+    font-size: 16px;
     font-weight: normal;
     cursor: pointer;
 }
@@ -136,11 +136,11 @@ body {
     display: block;
     float: left;
 
-    width: 320px;
+    width: 380px;
     padding: 0px;
 
     clear: left;
-    font: 10px/1.5 monaco, monospace;
+    font: 14px/1.5 monaco, monospace;
     margin: 1px;
     padding: 1px;
     border: 1px solid #eee;
