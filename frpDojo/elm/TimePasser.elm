@@ -10,7 +10,7 @@ specialItems : Dict String (Int, Int -> Int -> Int -> Int)
 specialItems = Dict.fromList [
 -- (name, (expire, qualityFn))
   ("Aged Brie", (0-1, \ _ r q -> q + r)),
-  ("Sulfuras", (0, \ _ _ q -> q )),
+  ("Sulfuras", (0, \ _ _ -> id)),
   ("Backstage passes", (0-1, updateQuality)),
   ("Conjured", (0-1, \ _ r q -> q - 2 * r))
   ]
@@ -19,10 +19,7 @@ specialItems = Dict.fromList [
 
 stepTime : Inventory -> Inventory
 
-stepTime inventory = expireItems inventory
-
-expireItems : Inventory -> Inventory
-expireItems inventory =
+stepTime inventory =
   Dict.map (boundQuality . updateItem) inventory
 
 boundQuality item =
@@ -32,10 +29,10 @@ boundQuality item =
 
 updateItem item =
   let (deltaExpire, qualityFn) =
-     Dict.findWithDefault (0-1, \ _ r q -> q - r) item.name specialItems
+        Dict.findWithDefault (0-1, \ _ r q -> q - r) item.name specialItems
       rate = if item.expire > 0 then 1 else 2
   in
-      { item | quality <- qualityFn item.expire rate item.quality,
+     { item | quality <- qualityFn item.expire rate item.quality,
                expire <- item.expire + deltaExpire }
 
 updateQuality expire rate quality =
