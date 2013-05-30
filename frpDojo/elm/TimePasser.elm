@@ -2,22 +2,15 @@ module TimePasser(stepTime) where
 
 import Dict
 
--- MODEL the problem
 type Item = { name:String, expire:Int, quality:Int }
 type Inventory = Dict String Item
 
-specialItems : Dict String (Int, Int -> Int -> Int -> Int)
 specialItems = Dict.fromList [
--- (name, (expire, qualityFn))
   ("Aged Brie", (0-1, \ _ r q -> q + r)),
   ("Sulfuras", (0, \ _ _ -> id)),
   ("Backstage passes", (0-1, updateQuality)),
   ("Conjured", (0-1, \ _ r q -> q - 2 * r))
   ]
-
--- Passing Time
-
-stepTime : Inventory -> Inventory
 
 stepTime inventory =
   Dict.map (boundQuality . updateItem) inventory
